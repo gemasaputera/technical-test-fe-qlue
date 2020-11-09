@@ -82,7 +82,7 @@ function BarChart({ data, isLoading, title }) {
                 motionDamping={15}
             />}
             {isLoading&&<p>Loading Chart</p>}
-            {dataChart.length===0&&<p>Belum ada data yang tersedia.</p>}
+            {dataChart.length===0&&!isLoading&&<p>Belum ada data yang tersedia.</p>}
         </ChartContainer>
     </CardChartContainer>
   )

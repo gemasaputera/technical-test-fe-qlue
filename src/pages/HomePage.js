@@ -20,7 +20,7 @@ function HomePage() {
     if (!localData&&!localCount) {
       const options = {
         method: 'GET',
-        url: 'https://swapi.dev/api/people',
+        url: 'https://cors-anywhere.herokuapp.com/https://swapi.dev/api/people',
         params: { page: page}
       }
       setLoading(true)
@@ -31,9 +31,9 @@ function HomePage() {
             setDataTable(`DATA_COUNT_${page}`,res.count)
             setUsers(res.results);
             setCount(res.count);
-            setLoading(false)
           }
         })
+        setLoading(false)
     } else {
       setUsers(localData);
       setCount(localCount);
