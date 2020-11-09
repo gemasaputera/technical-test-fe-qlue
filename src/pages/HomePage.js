@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import './../App.css'
-import fetch from 'utils/fetch';
+import './../App.css';
+import axios from 'axios';
 import Table from 'components/Table';
 import BarChart from 'components/BarChart';
 import ProfileSection from 'components/ProfileSection';
@@ -18,22 +18,23 @@ function HomePage() {
     const localCount = getDataTable(`DATA_COUNT_${page}`);
     let mounted = true;
     if (!localData&&!localCount) {
-      const options = {
-        method: 'GET',
-        url: 'https://cors-anywhere.herokuapp.com/https://swapi.dev/api/people',
-        params: { page: page}
-      }
-      setLoading(true)
-      fetch(options)
-        .then(res => {
-          if(mounted) {
-            setDataTable(`DATA_PAGE_${page}`,res.results)
-            setDataTable(`DATA_COUNT_${page}`,res.count)
-            setUsers(res.results);
-            setCount(res.count);
+      const fetchData = async () =>{
+        try {
+          setLoading(true);
+          const response = await axios(`https://cors-anywhere.herokuapp.com/https://swapi.dev/api/people?page=${page}`);
+          console.log('response',response)
+          if (mounted) {
+            setDataTable(`DATA_PAGE_${page}`,response.data.results)
+            setDataTable(`DATA_COUNT_${page}`,response.data.count)
+            setUsers(response.data.results);
+            setCount(response.data.count);
           }
-        })
-        setLoading(false)
+        } catch(error) {
+          return error;
+        }
+        setLoading(false);
+      }
+      fetchData();
     } else {
       setUsers(localData);
       setCount(localCount);
