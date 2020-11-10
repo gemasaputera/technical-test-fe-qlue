@@ -13,7 +13,7 @@ function HomePage() {
     setPages(index)
   }
   const userData = data?data.results:[];
-  const userCount = data?data.count:[];
+  const userCount = data?data.count:1;
   return (
     <div className="container">
       <ProfileSection />
