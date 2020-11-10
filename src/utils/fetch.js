@@ -1,21 +1,37 @@
+import { useState, useEffect } from 'react';
+import { setDataTable, getDataTable } from 'utils/common';
 import axios from 'axios';
 
-export default function fetch(options) {
-  return new Promise((resolve, reject) => {
-    axios(options)
-      .then(res => {
-        resolve(res.data);
-      })
-      .catch(err => {
-        const defaultError = {
-          code: err,
-          status: 'error',
-          message: err.message
-        };
-
-        if (typeof err.response === 'undefined') reject(defaultError);
-        else if (typeof err.response.data === 'undefined') reject(defaultError);
-        else reject(err.response.data);
-      });
-  });
+function useRequest(initUrl) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState({});
+  useEffect(() => {
+    let mount = true;
+    let localData = null;
+    const fetchProduct = async () => {
+      try {
+        localData = JSON.parse(getDataTable(`${initUrl}`));
+        if(!localData||localData===null) {
+          setLoading(true);
+          const response = await axios(initUrl);
+          if (mount) {
+            setData(response.data);
+            setDataTable(`${initUrl}`,response.data);
+          }
+        } else {
+          setData(localData);
+        }
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+    return (() => { mount = false; });
+  }, [initUrl]);
+  return { data, loading, error };
 }
+
+export default useRequest;

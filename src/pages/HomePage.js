@@ -1,58 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './../App.css';
-import axios from 'axios';
 import Table from 'components/Table';
 import BarChart from 'components/BarChart';
 import ProfileSection from 'components/ProfileSection';
 import { columnUser as column } from 'utils/data';
-import { setDataTable, getDataTable }  from 'utils/common';
+import useRequest from 'utils/fetch';
 
 function HomePage() {
   const [page, setPages] = useState(1);
-  const [count, setCount] = useState(1);
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(()=>{
-    const localData = JSON.parse(getDataTable(`DATA_PAGE_${page}`));
-    const localCount = getDataTable(`DATA_COUNT_${page}`);
-    let mounted = true;
-    if (!localData&&!localCount) {
-      const fetchData = async () =>{
-        try {
-          setLoading(true);
-          const response = await axios(`https://cors-anywhere.herokuapp.com/https://swapi.dev/api/people?page=${page}`);
-          console.log('response',response)
-          if (mounted) {
-            setDataTable(`DATA_PAGE_${page}`,response.data.results)
-            setDataTable(`DATA_COUNT_${page}`,response.data.count)
-            setUsers(response.data.results);
-            setCount(response.data.count);
-          }
-        } catch(error) {
-          return error;
-        }
-        setLoading(false);
-      }
-      fetchData();
-    } else {
-      setUsers(localData);
-      setCount(localCount);
-    }
-    
-    return () => mounted = false;
-  }, [page]);
-
+  const { data, loading } = useRequest(`https://cors-anywhere.herokuapp.com/https://swapi.dev/api/people?page=${page}`);
   const handleAction = (index) => {
     setPages(index)
   }
-  
+  const userData = data?data.results:[];
+  const userCount = data?data.count:[];
   return (
     <div className="container">
       <ProfileSection />
       <div className="home-wrapper">
         <BarChart 
-          data={users}
+          data={userData}
           page={page}
           title='User Stats'
           isLoading={loading}
@@ -60,11 +27,11 @@ function HomePage() {
         <Table
           action={(index)=>handleAction(index)}
           column={column}
-          data={users}
+          data={userData}
           isLoading={loading}
           page={page}
           title='Detail Users'
-          totalPages={count}
+          totalPages={userCount}
         />
       </div>
     </div>
